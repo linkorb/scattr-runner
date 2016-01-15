@@ -1,0 +1,13 @@
+{
+  "sleepSeconds": 3,
+  "commands": [
+    {
+      "command": "ansible-playbook",
+      "template": "/usr/local/bin/ansible-playbook --forks={{ forks }} --inventory-file=/houston-data/{{account}}/{{infrastructure}}/projects/{{project}}/{{ inventory }} /houston-data/{{account}}/{{infrastructure}}/projects/{{project}}/{{ inventory }}/{{ playbook}}"
+    },
+    {
+      "command": "ping-something",
+      "template": "ping -c {{ count }} {{ hostname }}"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "directories": ["src", "vendor"],
+  "main": "src/run.php",
+  "output": "runner.phar",
+  "stub": true
+}

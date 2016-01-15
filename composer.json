@@ -1,0 +1,40 @@
+{
+    "name": "linkorb/scattr-runner",
+    "description": "client library for Jobs API in Houston project",
+    "license": "MIT",
+    "type": "library",
+
+    "require": {
+        "php": ">=5.6",
+        "guzzlehttp/guzzle": "^6.0",
+        "symfony/console": "~2.6",
+        "linkorb/scattr-client-php": "dev-master"
+    },
+
+    "require-dev": {
+        "ext-curl": "*"
+    },
+
+    "keywords": [
+        "scattr",
+        "api",
+        "php",
+        "client",
+        "official",
+        "library",
+        "linkorb"
+    ],
+
+    "authors": [
+        {
+            "name":     "LinkORB Engineering",
+            "email":    "engineering@linkorb.com"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Scattr\\Runner\\": "src/"
+        }
+    }
+}
