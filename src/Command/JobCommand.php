@@ -41,6 +41,12 @@ class JobCommand extends Command
             return;
         }
 
+        $commands = [];
+        foreach ($runnerConfig['commands'] as $c)
+        {
+            $commands[$c['command']] = $c;
+        }
+
         $username = getenv('SCATTR_USERNAME');
         $password = getenv('SCATTR_PASSWORD');
         $account = getenv('SCATTR_ACCOUNT');
@@ -61,7 +67,7 @@ class JobCommand extends Command
                 continue;
             }
 
-            if (!array_key_exists($job->getCommand(), $runnerConfig['commands']))
+            if (!array_key_exists($job->getCommand(), $commands))
             {
                 $client->setFinished($job, 'FAILURE');
                 $client->postJobLog($job, 'error', "Command {$job->getCommand()} does not exist in commands in config file");
@@ -74,7 +80,7 @@ class JobCommand extends Command
                     $res['{{'.$k.'}}'] = $v;
                 }
                 // remove possible white spaces in {{ variable}}
-                $command = preg_replace('/{{(\s*)(.*?)(\s*)}}/', '{{$2}}', $runnerConfig['commands'][$job->getCommand()]);
+                $command = preg_replace('/{{(\s*)(.*?)(\s*)}}/', '{{$2}}', $commands[$job->getCommand()]['template']);
                 // replace variables with parameters
                 $command = str_replace(array_keys($res), array_values($res), $command);
 

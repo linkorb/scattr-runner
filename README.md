@@ -47,3 +47,15 @@ to build run
 $ php box.phar build -v
 ```
 
+### Run examples
+Run as application
+```sh
+$ cd example
+$ php run_app.php jobs.json
+```
+
+Run as phar
+```sh
+$ cd example
+$ php run_phar.php
+```
