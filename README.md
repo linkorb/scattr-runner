@@ -27,9 +27,17 @@ if(file_exists('runner.pid'))
         }
     }
 }
+else
+{
+    $pid = shell_exec('nohup php runner.phar > runner.log 2>&1 & echo $!');
+    if($pid)
+    {
+        file_put_contents('runner.pid', trim($pid));
+    }
+}
 ```
 
-and put this script to cron, to find out whether runner.phar is running.
+and put this script to cron, to find out whether runner.phar is running and if is not run it.
 
 
 ### Further developing
