@@ -1,5 +1,17 @@
 # Scattr Runner
 
+### Configuration
+
+Scattr Runner takes it's configuration from environment variables. Here's an example setup:
+
+```sh
+export SCATTR_USERNAME=joe
+export SCATTR_PASSWORD=secret
+export SCATTR_ACCOUNTNAME=demo
+export SCATTR_POOLNAME=test
+export SCATTR_URL="http://127.0.0.1:8080"
+```
+
 ### Usage
 
 runner.phar can be directly runned by
