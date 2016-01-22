@@ -5,6 +5,7 @@ namespace Scattr\Runner\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Scattr\Client\Client;
@@ -16,11 +17,21 @@ class JobCommand extends Command
         $this
             ->setName('job')
             ->setDescription('execute job')
-            ->addArgument('config_file', InputArgument::REQUIRED, 'jobs.json config file');
+            ->addArgument(
+                'config_file',
+                InputArgument::REQUIRED,
+                'jobs.json config file'
+            )
+            ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $verbose = false;
+        
+        if ($input->getOption('verbose')) {
+            $verbose = true;
+        }
         $runnerConfigPath = $input->getArgument('config_file');
         if (!file_exists($runnerConfigPath))
         {
@@ -49,34 +60,51 @@ class JobCommand extends Command
 
         $username = getenv('SCATTR_USERNAME');
         $password = getenv('SCATTR_PASSWORD');
-        $account = getenv('SCATTR_ACCOUNT');
+        $accountName = getenv('SCATTR_ACCOUNTNAME');
         $poolName = getenv('SCATTR_POOLNAME');
         $url = getenv('SCATTR_URL');
-        if (!$username || !$password || !$account || !$url || !$poolName) {
-            $output->writeln("Not all required env variables are set\n");
+        
+        if ($verbose) {
+            $output->writeln("Starting scattr-runner");
+            $output->writeln(" - url: " . $url);
+            $output->writeln(" - username: " . $username);
+            $output->writeln(" - pool: " . $accountName . '/' . $poolName);
+        }
+
+        if (!$username || !$password || !$accountName || !$url || !$poolName) {
+            $output->writeln("Not all required env variables are set (refer to README.md for details)\n");
             return;
         }
 
-        $client = new Client($username, $password, $account, $poolName, $url);
+        $client = new Client($username, $password, $accountName, $poolName, $url);
 
-        while(true)
-        {
+        while (true) {
             $job = $client->popJob();
-            if (!$job)
-            {
+            if (!$job) {
+                if ($verbose) {
+                    $output->writeln("No jobs");
+                }
+                sleep($runnerConfig['sleepSeconds']);
                 continue;
             }
+            
 
-            if (!array_key_exists($job->getCommand(), $commands))
-            {
+            if ($verbose) {
+                $output->writeln("Received Job #" . $job->getId() . ' command [' . $job->getCommand() . ']');
+                foreach ($job->getParameters() as $k => $v) {
+                    $output->writeln(' - ' . $k . ' = ' . $v);
+                }
+            }
+
+            if (!array_key_exists($job->getCommand(), $commands)) {
+                if ($verbose) {
+                    $output->writeln("ERROR: Unconfigured command");
+                }
                 $client->setFinished($job, 'FAILURE');
                 $client->postJobLog($job, 'error', "Command {$job->getCommand()} does not exist in commands in config file");
-            }
-            else
-            {
+            } else {
                 $res = [];
-                foreach ($job->getParameters() as $k => $v)
-                {
+                foreach ($job->getParameters() as $k => $v) {
                     $res['{{'.$k.'}}'] = $v;
                 }
                 // remove possible white spaces in {{ variable}}
@@ -86,18 +114,20 @@ class JobCommand extends Command
 
                 passthru($command . ' 2>error 1>output');
                 $error = file_get_contents('error');
-                if ($error)
-                {
+                if ($error) {
                     $client->setFinished($job, 'FAILURE');
                     $client->postJobLog($job, 'error', $error);
-                }
-                else
-                {
+                    if ($verbose) {
+                        $output->writeln("Error: " . $error);
+                    }
+                } else {
                     $client->setFinished($job, 'SUCCESS');
                     $out = file_get_contents('output');
-                    if ($out)
-                    {
+                    if ($out) {
                         $client->postJobLog($job, 'info', $out);
+                        if ($verbose) {
+                            $output->writeln("Info: " . $out);
+                        }
                     }
                 }
             }
