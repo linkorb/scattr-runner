@@ -14,10 +14,20 @@ export SCATTR_URL="http://127.0.0.1:8080"
 
 ### Usage
 
+#### Using PHAR
+
 runner.phar can be directly runned by
 ```sh
 $ php runner.phar config_file.json
 ```
+
+#### Using a script:
+
+```sh
+bin/scattr-runner config_file.json
+```
+
+#### CRON
 
 You can also write php script with content
 ```php
@@ -51,6 +61,9 @@ else
 
 and put this script to cron, to find out whether runner.phar is running and if is not run it.
 
+### Verbose output
+
+You can pass the flag `--verbose` to scattr-runner to get detailed output of what the runner is doing, including all job details.
 
 ### Further developing
 
