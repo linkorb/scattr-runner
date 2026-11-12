@@ -12,7 +12,8 @@
     },
 
     "require-dev": {
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "phpunit/phpunit": "^9.6"
     },
 
     "keywords": [
